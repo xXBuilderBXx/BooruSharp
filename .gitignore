@@ -12,6 +12,7 @@ nuget.config
 *.user
 *.userosscache
 *.sln.docstates
+*.runsettings
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

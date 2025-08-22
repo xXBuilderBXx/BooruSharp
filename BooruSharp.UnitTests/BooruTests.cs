@@ -608,7 +608,6 @@ public class BooruTests
     [InlineData(typeof(DanbooruDonmai), "futanari", 3589)]
     [InlineData(typeof(E621), "futanari", 123)]
     [InlineData(typeof(E926), "futanari", 123)]
-    //[InlineData(typeof(Furrybooru), "futanari", -1)]
     [InlineData(typeof(Gelbooru), "futanari", -1)]
     [InlineData(typeof(Konachan), "futanari", 757)]
     [InlineData(typeof(Realbooru), "futanari", -1)]

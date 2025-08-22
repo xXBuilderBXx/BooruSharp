@@ -388,7 +388,7 @@ namespace BooruSharp.Booru
         private const string _userAgentHeaderValue = "Mozilla/5.0 BooruSharp";
         private protected readonly DateTime _unixTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        private static HttpClient CreateHttpClient(BooruOptions options)
+        public static HttpClient CreateHttpClient(BooruOptions options)
         {
             HttpClientHandler handler = new HttpClientHandler
             {
