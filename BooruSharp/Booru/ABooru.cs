@@ -281,6 +281,9 @@ namespace BooruSharp.Booru
 
             msg.EnsureSuccessStatusCode();
 
+            if (msg.Content.Headers.ContentType.MediaType != "application/json")
+                throw new AuthentificationRequired("API is using captcha or other blocking features.");
+
             return await msg.Content.ReadAsStringAsync();
         }
 
