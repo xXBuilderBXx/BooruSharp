@@ -11,7 +11,9 @@
         /// </summary>
         public Atfbooru(BooruOptions options = null)
             : base("booru.allthefallen.moe", options)
-        { }
+        {
+            options.Flags |= BooruFlag.CookieRequired;
+        }
 
         /// <inheritdoc/>
         public override bool IsSafe => false;

@@ -265,6 +265,9 @@ namespace BooruSharp.Booru
 
         private protected async Task<string> GetJsonAsync(string url)
         {
+            if (Options.Flags.HasFlag(BooruFlag.CookieRequired) && string.IsNullOrEmpty(Options.Cookie))
+                throw new AuthentificationRequired("Browser cookie is required to use this Booru source .");
+
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
             HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, url);
@@ -282,7 +285,7 @@ namespace BooruSharp.Booru
             msg.EnsureSuccessStatusCode();
 
             if (msg.Content.Headers.ContentType.MediaType != "application/json" && msg.Content.Headers.ContentType.MediaType != "text/xml")
-                throw new AuthentificationRequired("API is using captcha or other blocking features.");
+                throw new AuthentificationRequired("Booru source is using captcha or other blocking features.");
 
             return await msg.Content.ReadAsStringAsync();
         }
@@ -308,7 +311,15 @@ namespace BooruSharp.Booru
 
         private async Task<string> GetRandomIdAsync(string tags)
         {
-            HttpResponseMessage msg = await HttpClient.GetAsync(BaseUrl + "index.php?page=post&s=random&tags=" + tags);
+            if (Options.Flags.HasFlag(BooruFlag.CookieRequired) && string.IsNullOrEmpty(Options.Cookie))
+                throw new AuthentificationRequired("Browser cookie is required to use this Booru source .");
+
+            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, BaseUrl + "index.php?page=post&s=random&tags=" + tags);
+            PreRequest(message);
+            if (!string.IsNullOrEmpty(Options.Cookie))
+                message.Headers.Add("Cookie", Options.Cookie);
+            HttpResponseMessage msg = await HttpClient.SendAsync(message);
+
             msg.EnsureSuccessStatusCode();
             return HttpUtility.ParseQueryString(msg.RequestMessage.RequestUri.Query).Get("id");
         }

@@ -97,5 +97,10 @@ namespace BooruSharp.Booru
         /// Indicates that the search autocomplete API is not avaliable.
         /// </summary>
         NoAutocomplete = 1 << 16,
+
+        /// <summary>
+        /// Cookie is required to use this booru source.
+        /// </summary>
+        CookieRequired = 1 << 17,
     }
 }
