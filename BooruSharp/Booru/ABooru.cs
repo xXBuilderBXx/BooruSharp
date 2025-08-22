@@ -268,6 +268,9 @@ namespace BooruSharp.Booru
             if (Options.Flags.HasFlag(BooruFlag.CookieRequired) && string.IsNullOrEmpty(Options.Cookie))
                 throw new AuthentificationRequired("Browser cookie is required to use this Booru source.");
 
+            if (Options.Flags.HasFlag(BooruFlag.AuthRequired) && Options.Auth == null)
+                throw new AuthentificationRequired("Auth is required to use this Booru source.");
+
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
             HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, url);
@@ -313,6 +316,9 @@ namespace BooruSharp.Booru
         {
             if (Options.Flags.HasFlag(BooruFlag.CookieRequired) && string.IsNullOrEmpty(Options.Cookie))
                 throw new AuthentificationRequired("Browser cookie is required to use this Booru source.");
+
+            if (Options.Flags.HasFlag(BooruFlag.AuthRequired) && Options.Auth == null)
+                throw new AuthentificationRequired("Auth is required to use this Booru source.");
 
             HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, BaseUrl + "index.php?page=post&s=random&tags=" + tags);
             PreRequest(message);

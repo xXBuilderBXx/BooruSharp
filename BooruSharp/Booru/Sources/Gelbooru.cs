@@ -16,7 +16,9 @@ namespace BooruSharp.Booru
         /// </summary>
         public Gelbooru(BooruOptions options = null)
             : base("gelbooru.com", options)
-        { }
+        {
+            options.Flags |= BooruFlag.AuthRequired;
+        }
 
         /// <inheritdoc/>
         public override bool IsSafe => false;

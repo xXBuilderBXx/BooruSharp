@@ -18,7 +18,7 @@ namespace BooruSharp.Booru
             // The limit is in fact 200000 but search with tags make it incredibly hard to know what is really your pid
             : base("rule34.xxx", options)
         {
-            options.Flags = options.Flags | BooruFlag.NoComment | BooruFlag.LimitOf20000;
+            options.Flags = options.Flags | BooruFlag.NoComment | BooruFlag.LimitOf20000 | BooruFlag.AuthRequired;
         }
 
         /// <inheritdoc/>

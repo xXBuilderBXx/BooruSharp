@@ -102,5 +102,10 @@ namespace BooruSharp.Booru
         /// Cookie is required to use this booru source.
         /// </summary>
         CookieRequired = 1 << 17,
+
+        /// <summary>
+        /// Auth is required to use this booru source.
+        /// </summary>
+        AuthRequired = 1 << 18,
     }
 }
