@@ -27,8 +27,8 @@ namespace BooruSharp.Booru
             System.Collections.Specialized.NameValueCollection query = HttpUtility.ParseQueryString(uriBuilder.Query);
             if (Options.Auth != null)
             {
-                query["user-id"] = Options.Auth.UserId;
-                query["api-key"] = Options.Auth.PasswordHash;
+                query["user_id"] = Options.Auth.UserId;
+                query["api_key"] = Options.Auth.PasswordHash;
             }
             else
             {
