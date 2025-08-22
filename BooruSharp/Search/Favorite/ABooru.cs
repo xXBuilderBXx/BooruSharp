@@ -27,7 +27,7 @@ namespace BooruSharp.Booru
             if (!HasFavoriteAPI)
                 throw new FeatureUnavailable();
 
-            if (Auth == null)
+            if (Options.Auth == null)
                 throw new AuthentificationRequired();
 
             string response = await GetJsonAsync(BaseUrl + "public/addfav.php?id=" + postId);
@@ -58,13 +58,13 @@ namespace BooruSharp.Booru
             if (!HasFavoriteAPI)
                 throw new FeatureUnavailable();
 
-            if (Auth == null)
+            if (Options.Auth == null)
                 throw new AuthentificationRequired();
 
             string response = await GetJsonAsync(BaseUrl + "index.php?page=favorites&s=delete&id=" + postId);
 
             // If the HTML contains the word "Login" we were probably sent back to the authentification form
-            if (response.Contains("Login")) 
+            if (response.Contains("Login"))
                 throw new AuthentificationInvalid();
         }
 

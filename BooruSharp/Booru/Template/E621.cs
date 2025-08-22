@@ -32,9 +32,9 @@ namespace BooruSharp.Booru.Template
         /// <inheritdoc/>
         protected override void PreRequest(HttpRequestMessage message)
         {
-            if (Auth != null)
+            if (Options.Auth != null)
             {
-                string encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(Auth.UserId + ":" + Auth.PasswordHash));
+                string encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(Options.Auth.UserId + ":" + Options.Auth.PasswordHash));
                 message.Headers.Add("Authorization", $"Basic {encoded}");
             }
         }

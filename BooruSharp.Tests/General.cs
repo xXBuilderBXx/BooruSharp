@@ -146,6 +146,6 @@ public static class General
             userID == null || passwordHash == null,
             $"{booruName}_* environment variables aren't set.");
 
-        booru.Auth = new BooruAuth(userID, passwordHash);
+        booru.Options.Auth = new BooruAuth(userID, passwordHash);
     }
 }

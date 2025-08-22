@@ -42,9 +42,9 @@ namespace BooruSharp.Booru.Template
             UriBuilder uriBuilder = new UriBuilder(message.RequestUri.AbsoluteUri);
             System.Collections.Specialized.NameValueCollection query = HttpUtility.ParseQueryString(uriBuilder.Query);
             query["filter_id"] = $"{FilterID}";
-            if (Auth != null)
+            if (Options.Auth != null)
             {
-                query["key"] = Auth.PasswordHash;
+                query["key"] = Options.Auth.PasswordHash;
             }
             uriBuilder.Query = query.ToString();
             message.RequestUri = new Uri(uriBuilder.ToString());

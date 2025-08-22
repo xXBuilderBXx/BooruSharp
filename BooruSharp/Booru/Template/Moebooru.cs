@@ -30,9 +30,9 @@ namespace BooruSharp.Booru.Template
         /// <inheritdoc/>
         protected override void PreRequest(HttpRequestMessage message)
         {
-            if (Auth != null)
+            if (Options.Auth != null)
             {
-                message.Headers.Add("Cookie", "user_id=" + Auth.UserId + ";pass_hash=" + Auth.PasswordHash);
+                message.Headers.Add("Cookie", "user_id=" + Options.Auth.UserId + ";pass_hash=" + Options.Auth.PasswordHash);
             }
         }
 

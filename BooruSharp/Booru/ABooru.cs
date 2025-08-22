@@ -63,88 +63,88 @@ namespace BooruSharp.Booru
         /// <summary>
         /// Gets whether it is possible to search for related tags on this booru.
         /// </summary>
-        public bool HasRelatedAPI => !_options.Flags.HasFlag(BooruFlag.NoRelated);
+        public bool HasRelatedAPI => !Options.Flags.HasFlag(BooruFlag.NoRelated);
 
         /// <summary>
         /// Gets whether it is possible to search for wiki entries on this booru.
         /// </summary>
-        public bool HasWikiAPI => !_options.Flags.HasFlag(BooruFlag.NoWiki);
+        public bool HasWikiAPI => !Options.Flags.HasFlag(BooruFlag.NoWiki);
 
         /// <summary>
         /// Gets whether it is possible to search for comments on this booru.
         /// </summary>
-        public bool HasCommentAPI => !_options.Flags.HasFlag(BooruFlag.NoComment);
+        public bool HasCommentAPI => !Options.Flags.HasFlag(BooruFlag.NoComment);
 
         /// <summary>
         /// Gets whether it is possible to search for tags by their IDs on this booru.
         /// </summary>
-        public bool HasTagByIdAPI => !_options.Flags.HasFlag(BooruFlag.NoTagByID);
+        public bool HasTagByIdAPI => !Options.Flags.HasFlag(BooruFlag.NoTagByID);
 
         /// <summary>
         /// Gets whether it is possible to search for the last comments on this booru.
         /// </summary>
         // As a failsafe also check for the availability of comment API.
-        public bool HasSearchLastComment => HasCommentAPI && !_options.Flags.HasFlag(BooruFlag.NoLastComments);
+        public bool HasSearchLastComment => HasCommentAPI && !Options.Flags.HasFlag(BooruFlag.NoLastComments);
 
         /// <summary>
         /// Gets whether it is possible to search for posts by their MD5 on this booru.
         /// </summary>
-        public bool HasPostByMd5API => !_options.Flags.HasFlag(BooruFlag.NoPostByMD5);
+        public bool HasPostByMd5API => !Options.Flags.HasFlag(BooruFlag.NoPostByMD5);
 
         /// <summary>
         /// Gets whether it is possible to search for posts by their ID on this booru.
         /// </summary>
-        public bool HasPostByIdAPI => !_options.Flags.HasFlag(BooruFlag.NoPostByID);
+        public bool HasPostByIdAPI => !Options.Flags.HasFlag(BooruFlag.NoPostByID);
 
         /// <summary>
         /// Gets whether it is possible to get the total number of posts on this booru.
         /// </summary>
-        public bool HasPostCountAPI => !_options.Flags.HasFlag(BooruFlag.NoPostCount);
+        public bool HasPostCountAPI => !Options.Flags.HasFlag(BooruFlag.NoPostCount);
 
         /// <summary>
         /// Gets whether it is possible to get multiple random images on this booru.
         /// </summary>
-        public bool HasMultipleRandomAPI => !_options.Flags.HasFlag(BooruFlag.NoMultipleRandom);
+        public bool HasMultipleRandomAPI => !Options.Flags.HasFlag(BooruFlag.NoMultipleRandom);
 
         /// <summary>
         /// Gets whether this booru supports adding or removing favorite posts.
         /// </summary>
-        public bool HasFavoriteAPI => !_options.Flags.HasFlag(BooruFlag.NoFavorite);
+        public bool HasFavoriteAPI => !Options.Flags.HasFlag(BooruFlag.NoFavorite);
 
         /// <summary>
         /// Gets whether it is possible to autocomplete searches in this booru.
         /// </summary>
-        public bool HasAutocompleteAPI => !_options.Flags.HasFlag(BooruFlag.NoAutocomplete);
+        public bool HasAutocompleteAPI => !Options.Flags.HasFlag(BooruFlag.NoAutocomplete);
 
         /// <summary>
         /// Gets whether this booru can't call post functions without search arguments.
         /// </summary>
-        public bool NoEmptyPostSearch => _options.Flags.HasFlag(BooruFlag.NoEmptyPostSearch);
+        public bool NoEmptyPostSearch => Options.Flags.HasFlag(BooruFlag.NoEmptyPostSearch);
 
         /// <summary>
         /// Gets a value indicating whether searching by more than two tags at once is not allowed.
         /// </summary>
-        public bool NoMoreThanTwoTags => _options.Flags.HasFlag(BooruFlag.NoMoreThan2Tags);
+        public bool NoMoreThanTwoTags => Options.Flags.HasFlag(BooruFlag.NoMoreThan2Tags);
 
         /// <summary>
         /// Gets a value indicating whether http:// scheme is used instead of https://.
         /// </summary>
-        protected bool UsesHttp => _options.Flags.HasFlag(BooruFlag.UseHttp);
+        protected bool UsesHttp => Options.Flags.HasFlag(BooruFlag.UseHttp);
 
         /// <summary>
         /// Gets a value indicating whether tags API uses XML instead of JSON.
         /// </summary>
-        protected bool TagsUseXml => _options.Flags.HasFlag(BooruFlag.TagApiXml);
+        protected bool TagsUseXml => Options.Flags.HasFlag(BooruFlag.TagApiXml);
 
         /// <summary>
         /// Gets a value indicating whether comments API uses XML instead of JSON.
         /// </summary>
-        protected bool CommentsUseXml => _options.Flags.HasFlag(BooruFlag.CommentApiXml);
+        protected bool CommentsUseXml => Options.Flags.HasFlag(BooruFlag.CommentApiXml);
 
         /// <summary>
         /// Gets a value indicating whether the max limit of posts per search is increased (used by Gelbooru).
         /// </summary>
-        protected bool SearchIncreasedPostLimit => _options.Flags.HasFlag(BooruFlag.LimitOf20000);
+        protected bool SearchIncreasedPostLimit => Options.Flags.HasFlag(BooruFlag.LimitOf20000);
 
         /// <summary>
         /// Checks for the booru availability.
@@ -175,11 +175,10 @@ namespace BooruSharp.Booru
         /// </param>
         protected ABooru(string domain, UrlFormat format, BooruOptions options = null)
         {
-            Auth = null;
             HttpClient = null;
             if (options == null)
                 options = new BooruOptions();
-            _options = options;
+            Options = options;
 
             bool useHttp = UsesHttp; // Cache returned value for faster access.
             BaseUrl = new Uri("http" + (useHttp ? "" : "s") + "://" + domain, UriKind.Absolute);
@@ -344,11 +343,6 @@ namespace BooruSharp.Booru
         }
 
         /// <summary>
-        /// Gets or sets authentication credentials.
-        /// </summary>
-        public BooruAuth Auth { set; get; }
-
-        /// <summary>
         /// Sets the <see cref="System.Net.Http.HttpClient"/> instance that will be used
         /// to make requests. If <see langword="null"/> or left unset, the default
         /// <see cref="System.Net.Http.HttpClient"/> instance will be used.
@@ -361,7 +355,7 @@ namespace BooruSharp.Booru
             {
                 // If library consumers didn't provide their own client,
                 // initialize and use singleton client instead.
-                return _client ?? CreateHttpClient(_options);
+                return _client ?? CreateHttpClient(Options);
             }
             set
             {
@@ -386,7 +380,7 @@ namespace BooruSharp.Booru
         private HttpClient _client;
         private readonly Uri _imageUrlXml, _imageUrl, _tagUrl, _wikiUrl, _relatedUrl, _commentUrl, _autocompleteUrl; // URLs for differents endpoints
         // All options are stored in a bit field and can be retrieved using related methods/properties.
-        private readonly BooruOptions _options;
+        public readonly BooruOptions Options;
         private readonly UrlFormat _format; // URL format
         private const string _userAgentHeaderValue = "Mozilla/5.0 BooruSharp";
         private protected readonly DateTime _unixTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);

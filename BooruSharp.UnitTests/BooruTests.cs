@@ -119,9 +119,9 @@ public class BooruTests
     public void IsBooruAuthSet()
     {
         Gelbooru b = new Gelbooru();
-        Assert.True(b.Auth == null);
-        b.Auth = new BooruAuth("AAA", "AAA");
-        Assert.False(b.Auth == null);
+        Assert.True(b.Options.Auth == null);
+        b.Options.Auth = new BooruAuth("AAA", "AAA");
+        Assert.False(b.Options.Auth == null);
     }
 
     [SkippableFact]
@@ -167,7 +167,7 @@ public class BooruTests
     {
         ABooru booru = await Boorus.GetAsync(t);
         int id = (await General.GetRandomPostAsync(booru)).ID;
-        booru.Auth = new BooruAuth("AAA", "AAA");
+        booru.Options.Auth = new BooruAuth("AAA", "AAA");
 
         if (!booru.HasFavoriteAPI)
             await Assert.ThrowsAsync<Search.FeatureUnavailable>(() => booru.RemoveFavoriteAsync(id));
@@ -183,7 +183,7 @@ public class BooruTests
         const int invalidPostId = 800;
 
         ABooru booru = (ABooru)Activator.CreateInstance(t);
-        booru.Auth = new BooruAuth("AAA", "AAA");
+        booru.Options.Auth = new BooruAuth("AAA", "AAA");
         if (booru is Pixiv pixiv)
             await Assert.ThrowsAsync<Search.AuthentificationRequired>(() => pixiv.AddFavoriteAsync(invalidPostId));
         else if (!booru.HasFavoriteAPI)

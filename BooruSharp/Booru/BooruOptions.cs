@@ -8,7 +8,12 @@ namespace BooruSharp.Booru
     /// </summary>
     public class BooruOptions
     {
-        public BooruFlag Flags { get; set; }
+        /// <summary>
+        /// Gets or sets authentication credentials.
+        /// </summary>
+        public BooruAuth Auth { set; get; }
+
+        public BooruFlag Flags { get; internal set; }
         public IWebProxy Proxy { get; set; }
     }
     /// <summary>

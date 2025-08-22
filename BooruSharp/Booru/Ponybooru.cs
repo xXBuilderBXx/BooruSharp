@@ -27,9 +27,9 @@ namespace BooruSharp.Booru
         {
             UriBuilder uriBuilder = new UriBuilder(message.RequestUri.AbsoluteUri);
             System.Collections.Specialized.NameValueCollection query = HttpUtility.ParseQueryString(uriBuilder.Query);
-            if (Auth != null)
+            if (Options.Auth != null)
             {
-                query["key"] = Auth.PasswordHash;
+                query["key"] = Options.Auth.PasswordHash;
             }
             else
             {
