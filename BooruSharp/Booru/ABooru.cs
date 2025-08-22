@@ -159,8 +159,7 @@ namespace BooruSharp.Booru
         /// Add booru authentification to current request
         /// </summary>
         /// <param name="message">The request that is going to be sent</param>
-        protected virtual void PreRequest(HttpRequestMessage message)
-        { }
+        protected virtual void PreRequest(HttpRequestMessage message) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ABooru"/> class.
@@ -270,6 +269,8 @@ namespace BooruSharp.Booru
 
             HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, url);
             PreRequest(message);
+            if (!string.IsNullOrEmpty(Options.Cookie))
+                message.Headers.Add("Cookie", Options.Cookie);
             HttpResponseMessage msg = await HttpClient.SendAsync(message);
 
             if (msg.StatusCode == HttpStatusCode.Forbidden)
@@ -280,7 +281,7 @@ namespace BooruSharp.Booru
 
             msg.EnsureSuccessStatusCode();
 
-            if (msg.Content.Headers.ContentType.MediaType != "application/json")
+            if (msg.Content.Headers.ContentType.MediaType != "application/json" && msg.Content.Headers.ContentType.MediaType != "text/xml")
                 throw new AuthentificationRequired("API is using captcha or other blocking features.");
 
             return await msg.Content.ReadAsStringAsync();

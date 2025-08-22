@@ -12,7 +12,7 @@ namespace BooruSharp.Booru
         /// Gets or sets authentication credentials.
         /// </summary>
         public BooruAuth Auth { set; get; }
-
+        public string Cookie { get; set; }
         public BooruFlag Flags { get; internal set; }
         public IWebProxy Proxy { get; set; }
     }
