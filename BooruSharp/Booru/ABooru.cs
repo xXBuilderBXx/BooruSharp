@@ -266,7 +266,7 @@ namespace BooruSharp.Booru
         private protected async Task<string> GetJsonAsync(string url)
         {
             if (Options.Flags.HasFlag(BooruFlag.CookieRequired) && string.IsNullOrEmpty(Options.Cookie))
-                throw new AuthentificationRequired("Browser cookie is required to use this Booru source .");
+                throw new AuthentificationRequired("Browser cookie is required to use this Booru source.");
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
@@ -312,7 +312,7 @@ namespace BooruSharp.Booru
         private async Task<string> GetRandomIdAsync(string tags)
         {
             if (Options.Flags.HasFlag(BooruFlag.CookieRequired) && string.IsNullOrEmpty(Options.Cookie))
-                throw new AuthentificationRequired("Browser cookie is required to use this Booru source .");
+                throw new AuthentificationRequired("Browser cookie is required to use this Booru source.");
 
             HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, BaseUrl + "index.php?page=post&s=random&tags=" + tags);
             PreRequest(message);
@@ -363,7 +363,7 @@ namespace BooruSharp.Booru
         /// </summary>
         public HttpClient HttpClient
         {
-            protected get
+            internal get
             {
                 // If library consumers didn't provide their own client,
                 // initialize and use singleton client instead.

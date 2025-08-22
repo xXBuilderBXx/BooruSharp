@@ -76,14 +76,14 @@ namespace BooruSharp.Booru
 
             if (_format == UrlFormat.Philomena || _format == UrlFormat.BooruOnRails)
             {
-                var url = CreateUrl(_imageUrl, GetLimit(1), TagsToString(tags));
-                var json = await GetJsonAsync(url);
-                var token = (JToken)JsonConvert.DeserializeObject(json);
+                Uri url = CreateUrl(_imageUrl, GetLimit(1), TagsToString(tags));
+                string json = await GetJsonAsync(url);
+                JToken token = (JToken)JsonConvert.DeserializeObject(json);
                 return token["total"].Value<int>();
             }
             else
             {
-                var url = CreateUrl(_imageUrlXml, GetLimit(1), TagsToString(tags));
+                Uri url = CreateUrl(_imageUrlXml, GetLimit(1), TagsToString(tags));
                 XmlDocument xml = await GetXmlAsync(url);
                 return int.Parse(xml.ChildNodes.Item(1).Attributes[0].InnerXml);
             }
@@ -122,6 +122,7 @@ namespace BooruSharp.Booru
 
                 // The previous option doesn't work if there are tags so we contact the XML endpoint to get post count
                 Uri url = CreateUrl(_imageUrlXml, GetLimit(1), tagString);
+
                 XmlDocument xml = await GetXmlAsync(url);
                 int max = int.Parse(xml.ChildNodes.Item(1).Attributes[0].InnerXml);
 

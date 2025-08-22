@@ -1,5 +1,4 @@
 ﻿using BooruSharp.Booru;
-using BooruSharp.Booru.Sources;
 using BooruSharp.Others;
 
 namespace BooruSharp.Tests;

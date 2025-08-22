@@ -44,6 +44,13 @@ internal static class Boorus
 
             await pixiv.LoginAsync(refresh);
         }
+        else
+        {
+            if (booru is Atfbooru)
+            {
+                booru.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Cookie", Environment.GetEnvironmentVariable("atf_cookie"));
+            }
+        }
 
         return booru;
     }
