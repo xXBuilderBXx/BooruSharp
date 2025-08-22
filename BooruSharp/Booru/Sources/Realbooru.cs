@@ -2,6 +2,7 @@
 {
     /// <summary>
     /// Realbooru.
+    /// <para>Currently broken at the moment.</para>
     /// <para>http://realbooru.com/</para>
     /// </summary>
     public sealed class Realbooru : Template.Gelbooru02

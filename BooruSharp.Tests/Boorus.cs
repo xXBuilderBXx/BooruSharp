@@ -50,6 +50,10 @@ internal static class Boorus
             {
                 booru.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Cookie", Environment.GetEnvironmentVariable("atf_cookie"));
             }
+            else if (booru is Gelbooru)
+            {
+                booru.Options.Auth = new BooruAuth(Environment.GetEnvironmentVariable("gel_user"), Environment.GetEnvironmentVariable("gel_key"));
+            }
         }
 
         return booru;
