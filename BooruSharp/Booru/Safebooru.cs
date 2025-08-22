@@ -9,9 +9,11 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Safebooru"/> class.
         /// </summary>
-        public Safebooru()
-            : base("safebooru.org", BooruOptions.NoComment)
-        { }
+        public Safebooru(BooruOptions options = null)
+            : base("safebooru.org", options)
+        {
+            options.Flags |= BooruFlag.NoComment;
+        }
 
         /// <inheritdoc/>
         public override bool IsSafe => true;

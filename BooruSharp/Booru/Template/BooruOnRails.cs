@@ -24,10 +24,12 @@ namespace BooruSharp.Booru.Template
         /// <param name="options">
         /// The options to use. Use <c>|</c> (bitwise OR) operator to combine multiple options.
         /// </param>
-        protected BooruOnRails(string domain, BooruOptions options = BooruOptions.None)
-            : base(domain, UrlFormat.BooruOnRails, options | BooruOptions.NoFavorite | BooruOptions.NoPostByMD5 | BooruOptions.NoPostByID
-                  | BooruOptions.NoLastComments | BooruOptions.NoWiki | BooruOptions.NoRelated | BooruOptions.NoAutocomplete)
-        { }
+        protected BooruOnRails(string domain, BooruOptions options = null)
+            : base(domain, UrlFormat.BooruOnRails, options)
+        {
+            options.Flags |= BooruFlag.NoFavorite | BooruFlag.NoPostByMD5 | BooruFlag.NoPostByID
+                  | BooruFlag.NoLastComments | BooruFlag.NoWiki | BooruFlag.NoRelated | BooruFlag.NoAutocomplete;
+        }
 
         /// <summary>
         /// ID used to set filter and have access to as many posts as possible
@@ -37,8 +39,8 @@ namespace BooruSharp.Booru.Template
         /// <inheritdoc/>
         protected override void PreRequest(HttpRequestMessage message)
         {
-            var uriBuilder = new UriBuilder(message.RequestUri.AbsoluteUri);
-            var query = HttpUtility.ParseQueryString(uriBuilder.Query);
+            UriBuilder uriBuilder = new UriBuilder(message.RequestUri.AbsoluteUri);
+            System.Collections.Specialized.NameValueCollection query = HttpUtility.ParseQueryString(uriBuilder.Query);
             query["filter_id"] = $"{FilterID}";
             if (Auth != null)
             {
@@ -50,7 +52,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override JToken ParseFirstPostSearchResult(object json)
         {
-            var token = (JToken)json;
+            JToken token = (JToken)json;
             if (token["posts"] is JArray arr)
             {
                 return arr?.FirstOrDefault() ?? throw new Search.InvalidTags();
@@ -60,13 +62,13 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Post.SearchResult[] GetPostsSearchResult(object json)
         {
-            var token = ((JToken)json)["posts"];
+            JToken token = ((JToken)json)["posts"];
             return ((JArray)token).Select(GetPostSearchResult).ToArray();
         }
 
         private protected override Search.Post.SearchResult GetPostSearchResult(JToken elem)
         {
-            var tags = elem["tags"].ToObject<string[]>();
+            string[] tags = elem["tags"].ToObject<string[]>();
             Search.Post.Rating rating;
             if (tags.Contains("explicit")) rating = Search.Post.Rating.Explicit;
             else if (tags.Contains("questionable")) rating = Search.Post.Rating.Questionable;
@@ -74,7 +76,7 @@ namespace BooruSharp.Booru.Template
             else if (tags.Contains("safe")) rating = Search.Post.Rating.General;
             else rating = (Search.Post.Rating)(-1); // Some images doesn't have a rating
 
-            var id = elem["id"].Value<int>();
+            int id = elem["id"].Value<int>();
 
             return new Search.Post.SearchResult(
                 new Uri(elem["representations"]["full"].Value<string>()),
@@ -104,7 +106,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Tag.SearchResult GetTagSearchResult(object json)
         {
-            var token = (JToken)json;
+            JToken token = (JToken)json;
             return new Search.Tag.SearchResult(
                 token["id"].Value<int>(),
                 token["name"].Value<string>(),
@@ -115,7 +117,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Comment.SearchResult GetCommentSearchResult(object json)
         {
-            var token = (JToken)json;
+            JToken token = (JToken)json;
             return new Search.Comment.SearchResult(
                 token["id"].Value<int>(),
                 0,

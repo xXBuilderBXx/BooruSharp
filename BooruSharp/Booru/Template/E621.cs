@@ -22,10 +22,12 @@ namespace BooruSharp.Booru.Template
         /// <param name="options">
         /// The options to use. Use <c>|</c> (bitwise OR) operator to combine multiple options.
         /// </param>
-        protected E621(string domain, BooruOptions options = BooruOptions.None)
-            : base(domain, UrlFormat.Danbooru, options | BooruOptions.NoWiki | BooruOptions.NoRelated | BooruOptions.NoComment 
-                  | BooruOptions.NoTagByID | BooruOptions.NoPostCount | BooruOptions.NoFavorite)
-        { }
+        protected E621(string domain, BooruOptions options = null)
+            : base(domain, UrlFormat.Danbooru, options)
+        {
+            options.Flags |= BooruFlag.NoWiki | BooruFlag.NoRelated | BooruFlag.NoComment
+                  | BooruFlag.NoTagByID | BooruFlag.NoPostCount | BooruFlag.NoFavorite;
+        }
 
         /// <inheritdoc/>
         protected override void PreRequest(HttpRequestMessage message)
@@ -50,25 +52,25 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Post.SearchResult GetPostSearchResult(JToken elem)
         {
-            var detailedTags = new List<Search.Tag.SearchResult>();
-            var tags = new List<string>();
-            foreach(var cat in elem["tags"].OfType<JProperty>())
+            List<Search.Tag.SearchResult> detailedTags = new List<Search.Tag.SearchResult>();
+            List<string> tags = new List<string>();
+            foreach (JProperty cat in elem["tags"].OfType<JProperty>())
             {
-                foreach(var tag in cat.Value.ToObject<string[]>())
+                foreach (string tag in cat.Value.ToObject<string[]>())
                 {
                     tags.Add(tag);
                     detailedTags.Add(new Search.Tag.SearchResult(-1, tag, GetTagType(cat.Name), -1));
                 }
             }
 
-            var fileToken = elem["file"];
-            var previewToken = elem["preview"];
-            var sampleToken = elem["sample"];
+            JToken fileToken = elem["file"];
+            JToken previewToken = elem["preview"];
+            JToken sampleToken = elem["sample"];
 
             string url = fileToken["url"].Value<string>();
             string previewUrl = previewToken["url"].Value<string>();
             string sampleUrl = sampleToken["has"].Value<bool>() ? sampleToken["url"].Value<string>() : null;
-            
+
             int id = elem["id"].Value<int>();
 
             return new Search.Post.SearchResult(
@@ -91,10 +93,10 @@ namespace BooruSharp.Booru.Template
                     fileToken["md5"].Value<string>()
                 );
         }
-        
+
         private Search.Tag.TagType GetTagType(string typeName)
         {
-            switch(typeName)
+            switch (typeName)
             {
                 case "species": return Search.Tag.TagType.Species;
                 case "invalid": return Search.Tag.TagType.Invalid;
@@ -126,7 +128,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Tag.SearchResult GetTagSearchResult(object json)
         {
-            var elem = (JObject)json;
+            JObject elem = (JObject)json;
             return new Search.Tag.SearchResult(
                 elem["id"].Value<int>(),
                 elem["name"].Value<string>(),
@@ -139,14 +141,14 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Autocomplete.SearchResult[] GetAutocompleteResultAsync(object json)
         {
-            var elem = (JArray)json;
-            var autoCompleteResults = new List<Search.Autocomplete.SearchResult>();
-            foreach (var item in elem.Children())
+            JArray elem = (JArray)json;
+            List<Search.Autocomplete.SearchResult> autoCompleteResults = new List<Search.Autocomplete.SearchResult>();
+            foreach (JToken item in elem.Children())
             {
                 int id = item["id"].Value<int>();
                 string name = item["name"].Value<string>();
                 int count = item["post_count"].Value<int>();
-                var type = GetTagType(item["category"].Value<int>());
+                Search.Tag.TagType type = GetTagType(item["category"].Value<int>());
                 string antecedentName = item["antecedent_name"].Value<string>();
                 autoCompleteResults.Add(new Search.Autocomplete.SearchResult(id, name, name, type, count, antecedentName));
             }

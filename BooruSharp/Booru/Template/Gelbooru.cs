@@ -29,10 +29,12 @@ namespace BooruSharp.Booru.Template
         /// <param name="options">
         /// The options to use. Use <c>|</c> (bitwise OR) operator to combine multiple options.
         /// </param>
-        protected Gelbooru(string domain, BooruOptions options = BooruOptions.None)
-            : base(domain, UrlFormat.IndexPhp, options | BooruOptions.NoWiki | BooruOptions.NoRelated | BooruOptions.LimitOf20000
-                  | BooruOptions.CommentApiXml)
-        { }
+        protected Gelbooru(string domain, BooruOptions options = null)
+            : base(domain, UrlFormat.IndexPhp, options)
+        {
+            options.Flags |= BooruFlag.NoWiki | BooruFlag.NoRelated | BooruFlag.LimitOf20000
+                  | BooruFlag.CommentApiXml;
+        }
 
         /// <inheritdoc/>
         protected override void PreRequest(HttpRequestMessage message)
@@ -80,7 +82,7 @@ namespace BooruSharp.Booru.Template
             const string gelbooruTimeFormat = "ddd MMM dd HH:mm:ss zzz yyyy";
 
             int id = elem["id"].Value<int>();
-            var sampleUrl = elem["sample_url"].Value<string>();
+            string sampleUrl = elem["sample_url"].Value<string>();
 
             return new Search.Post.SearchResult(
                 new Uri(elem["file_url"].Value<string>()),
@@ -112,7 +114,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Comment.SearchResult GetCommentSearchResult(object json)
         {
-            var elem = (XmlNode)json;
+            XmlNode elem = (XmlNode)json;
             XmlNode creatorId = elem.Attributes.GetNamedItem("creator_id");
             return new Search.Comment.SearchResult(
                 int.Parse(elem.Attributes.GetNamedItem("id").Value),
@@ -128,7 +130,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override SearchResult GetTagSearchResult(object json)
         {
-            var elem = (JObject)json;
+            JObject elem = (JObject)json;
             return new SearchResult(
                 elem["id"].Value<int>(),
                 HttpUtility.HtmlDecode(elem["name"].Value<string>()),
@@ -161,21 +163,21 @@ namespace BooruSharp.Booru.Template
 
             Uri url = new Uri(BaseUrl + $"index.php?page=autocomplete2&term={query}&type=tag_query&limit=10");
 
-            var array = JsonConvert.DeserializeObject<JArray>(await GetJsonAsync(url));
+            JArray array = JsonConvert.DeserializeObject<JArray>(await GetJsonAsync(url));
 
             return GetAutocompleteResultAsync(array);
         }
 
         private protected override Search.Autocomplete.SearchResult[] GetAutocompleteResultAsync(object json)
         {
-            var elem = (JArray)json;
-            var autoCompleteResults = new List<Search.Autocomplete.SearchResult>();
-            foreach (var item in elem.Children())
+            JArray elem = (JArray)json;
+            List<Search.Autocomplete.SearchResult> autoCompleteResults = new List<Search.Autocomplete.SearchResult>();
+            foreach (JToken item in elem.Children())
             {
                 string label = item["label"].Value<string>();
                 string name = item["value"].Value<string>();
                 int count = item["post_count"].Value<int>();
-                var type = GetTagType(item["category"].Value<string>());
+                TagType type = GetTagType(item["category"].Value<string>());
                 autoCompleteResults.Add(new Search.Autocomplete.SearchResult(null, name, label, type, count, null));
             }
             return autoCompleteResults.ToArray();

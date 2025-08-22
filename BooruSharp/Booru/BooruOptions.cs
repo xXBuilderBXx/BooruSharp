@@ -1,14 +1,23 @@
 ﻿using System;
+using System.Net;
 
 namespace BooruSharp.Booru
 {
+    /// <summary>
+    /// Client options for a booru site
+    /// </summary>
+    public class BooruOptions
+    {
+        public BooruFlag Flags { get; set; }
+        public IWebProxy Proxy { get; set; }
+    }
     /// <summary>
     /// Represents options for creating an <see cref="ABooru"/> object.
     /// <para>This enumeration has a <see cref="FlagsAttribute"/> attribute
     /// that allows a bitwise combination of its member values.</para>
     /// </summary>
     [Flags]
-    public enum BooruOptions
+    public enum BooruFlag
     {
         /// <summary>
         /// Indicates that no additional options should be used when creating an <see cref="ABooru"/> object.

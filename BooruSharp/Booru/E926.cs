@@ -9,8 +9,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="E926"/> class.
         /// </summary>
-        public E926()
-            : base("e926.net")
+        public E926(BooruOptions options = null)
+            : base("e926.net", options)
         { }
 
         /// <inheritdoc/>

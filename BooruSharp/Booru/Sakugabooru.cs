@@ -9,9 +9,11 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Sakugabooru"/> class.
         /// </summary>
-        public Sakugabooru()
-            : base("sakugabooru.com", BooruOptions.NoLastComments)
-        { }
+        public Sakugabooru(BooruOptions options = null)
+            : base("sakugabooru.com", options)
+        {
+            options.Flags |= BooruFlag.NoLastComments;
+        }
 
         /// <inheritdoc/>
         public override bool IsSafe => false;

@@ -20,10 +20,12 @@ namespace BooruSharp.Booru.Template
         /// <param name="options">
         /// The options to use. Use <c>|</c> (bitwise OR) operator to combine multiple options.
         /// </param>
-        protected Moebooru(string domain, BooruOptions options = BooruOptions.None)
-            : base(domain, UrlFormat.PostIndexJson, options | BooruOptions.NoPostByMD5
-                  | BooruOptions.NoFavorite | BooruOptions.NoAutocomplete)
-        { }
+        protected Moebooru(string domain, BooruOptions options = null)
+            : base(domain, UrlFormat.PostIndexJson, options)
+        {
+            options.Flags |= BooruFlag.NoPostByMD5
+                  | BooruFlag.NoFavorite | BooruFlag.NoAutocomplete;
+        }
 
         /// <inheritdoc/>
         protected override void PreRequest(HttpRequestMessage message)
@@ -43,7 +45,7 @@ namespace BooruSharp.Booru.Template
         private protected override Search.Post.SearchResult GetPostSearchResult(JToken elem)
         {
             int id = elem["id"].Value<int>();
-            var sampleUrl = elem["sample_url"].Value<string>();
+            string sampleUrl = elem["sample_url"].Value<string>();
 
             return new Search.Post.SearchResult(
                 new Uri(elem["file_url"].Value<string>()),
@@ -75,7 +77,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Comment.SearchResult GetCommentSearchResult(object json)
         {
-            var elem = (JObject)json;
+            JObject elem = (JObject)json;
             return new Search.Comment.SearchResult(
                 elem["id"].Value<int>(),
                 elem["post_id"].Value<int>(),
@@ -88,7 +90,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Wiki.SearchResult GetWikiSearchResult(object json)
         {
-            var elem = (JObject)json;
+            JObject elem = (JObject)json;
             return new Search.Wiki.SearchResult(
                 elem["id"].Value<int>(),
                 elem["title"].Value<string>(),
@@ -100,7 +102,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Tag.SearchResult GetTagSearchResult(object json)
         {
-            var elem = (JObject)json;
+            JObject elem = (JObject)json;
             return new Search.Tag.SearchResult(
                 elem["id"].Value<int>(),
                 elem["name"].Value<string>(),
@@ -111,7 +113,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Related.SearchResult GetRelatedSearchResult(object json)
         {
-            var elem = (JArray)json;
+            JArray elem = (JArray)json;
             return new Search.Related.SearchResult(
                 elem[0].Value<string>(),
                 elem[1].Value<int>()

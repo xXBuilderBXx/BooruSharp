@@ -21,10 +21,12 @@ namespace BooruSharp.Booru.Template
         /// <param name="options">
         /// The options to use. Use <c>|</c> (bitwise OR) operator to combine multiple options.
         /// </param>
-        protected Sankaku(string domain, BooruOptions options = BooruOptions.None)
-            : base(domain, UrlFormat.Sankaku, options | BooruOptions.NoRelated | BooruOptions.NoPostByMD5 | BooruOptions.NoPostByID
-                  | BooruOptions.NoPostCount | BooruOptions.NoFavorite | BooruOptions.NoTagByID)
-        { }
+        protected Sankaku(string domain, BooruOptions options = null)
+            : base(domain, UrlFormat.Sankaku, options)
+        {
+            options.Flags |= BooruFlag.NoRelated | BooruFlag.NoPostByMD5 | BooruFlag.NoPostByID
+                  | BooruFlag.NoPostCount | BooruFlag.NoFavorite | BooruFlag.NoTagByID;
+        }
 
         /// <inheritdoc/>
         protected override void PreRequest(HttpRequestMessage message) // TODO: Doesn't work rn
@@ -45,19 +47,19 @@ namespace BooruSharp.Booru.Template
         {
             int id = elem["id"].Value<int>();
 
-            var postUriBuilder = new UriBuilder(BaseUrl)
+            UriBuilder postUriBuilder = new UriBuilder(BaseUrl)
             {
                 Host = BaseUrl.Host.Replace("capi-v2", "beta"),
                 Path = $"/post/show/{id}",
             };
 
-            var detailedTags = new List<Search.Tag.SearchResult>();
-            var tags = new List<string>();
-            foreach(var tag in (JArray)elem["tags"])
+            List<Search.Tag.SearchResult> detailedTags = new List<Search.Tag.SearchResult>();
+            List<string> tags = new List<string>();
+            foreach (JToken tag in (JArray)elem["tags"])
             {
-                var name = tag["name"].Value<string>();
+                string name = tag["name"].Value<string>();
                 tags.Add(name);
-                
+
                 detailedTags.Add(new Search.Tag.SearchResult(
                     tag["id"].Value<int>(),
                     name,
@@ -66,10 +68,10 @@ namespace BooruSharp.Booru.Template
                     ));
             }
 
-            var url = elem["file_url"].Value<string>();
-            var previewUrl = elem["preview_url"].Value<string>();
-            var sampleUrl = elem["sample_url"].Value<string>();
-            
+            string url = elem["file_url"].Value<string>();
+            string previewUrl = elem["preview_url"].Value<string>();
+            string sampleUrl = elem["sample_url"].Value<string>();
+
             return new Search.Post.SearchResult(
                 url == null ? null : new Uri(url),
                 previewUrl == null ? null : new Uri(previewUrl),
@@ -93,7 +95,7 @@ namespace BooruSharp.Booru.Template
 
         private Search.Tag.TagType GetTagType(int type)
         {
-            switch(type)
+            switch (type)
             {
                 case 0: return Search.Tag.TagType.Trivia;
                 case 1: return Search.Tag.TagType.Artist;
@@ -113,8 +115,8 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Comment.SearchResult GetCommentSearchResult(object json)
         {
-            var elem = (JObject)json;
-            var authorToken = elem["author"];
+            JObject elem = (JObject)json;
+            JToken authorToken = elem["author"];
 
             return new Search.Comment.SearchResult(
                 elem["id"].Value<int>(),
@@ -128,7 +130,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Wiki.SearchResult GetWikiSearchResult(object json)
         {
-            var elem = (JObject)json;
+            JObject elem = (JObject)json;
             return new Search.Wiki.SearchResult(
                 elem["id"].Value<int>(),
                 elem["title"].Value<string>(),
@@ -140,7 +142,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Tag.SearchResult GetTagSearchResult(object json) // TODO: Fix TagType values
         {
-            var elem = (JObject)json;
+            JObject elem = (JObject)json;
             return new Search.Tag.SearchResult(
                 elem["id"].Value<int>(),
                 elem["name"].Value<string>(),

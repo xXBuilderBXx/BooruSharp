@@ -9,9 +9,11 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Yandere"/> class.
         /// </summary>
-        public Yandere()
-            : base("yande.re", BooruOptions.NoLastComments)
-        { }
+        public Yandere(BooruOptions options = null)
+            : base("yande.re", options)
+        {
+            options.Flags |= BooruFlag.NoLastComments;
+        }
 
         /// <inheritdoc/>
         public override bool IsSafe => false;

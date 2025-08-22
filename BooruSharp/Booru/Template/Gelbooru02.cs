@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace BooruSharp.Booru.Template
@@ -24,11 +24,12 @@ namespace BooruSharp.Booru.Template
         /// <param name="options">
         /// The options to use. Use <c>|</c> (bitwise OR) operator to combine multiple options.
         /// </param>
-        protected Gelbooru02(string domain, BooruOptions options = BooruOptions.None) 
-            : base(domain, UrlFormat.IndexPhp, options | BooruOptions.NoRelated | BooruOptions.NoWiki | BooruOptions.NoPostByMD5
-                  | BooruOptions.CommentApiXml | BooruOptions.TagApiXml | BooruOptions.NoMultipleRandom)
+        protected Gelbooru02(string domain, BooruOptions options = null)
+            : base(domain, UrlFormat.IndexPhp, options)
         {
             _url = domain;
+            options.Flags |= BooruFlag.NoRelated | BooruFlag.NoWiki | BooruFlag.NoPostByMD5
+                  | BooruFlag.CommentApiXml | BooruFlag.TagApiXml | BooruFlag.NoMultipleRandom;
         }
 
         /// <inheritdoc/>
@@ -53,7 +54,7 @@ namespace BooruSharp.Booru.Template
             string image = elem["image"].Value<string>();
             string hash = elem["hash"].Value<string>();
             int id = elem["id"].Value<int>();
-            var hasSample = elem["sample"].Value<bool>();
+            bool hasSample = elem["sample"].Value<bool>();
 
             return new Search.Post.SearchResult(
                 new Uri(baseUrl + "//images/" + directory + "/" + image),
@@ -78,14 +79,14 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Post.SearchResult[] GetPostsSearchResult(object json)
         {
-            return json is JArray array 
+            return json is JArray array
                 ? array.Select(GetPostSearchResult).ToArray()
                 : Array.Empty<Search.Post.SearchResult>();
         }
 
         private protected override Search.Comment.SearchResult GetCommentSearchResult(object json)
         {
-            var elem = (XmlNode)json;
+            XmlNode elem = (XmlNode)json;
             XmlNode creatorId = elem.Attributes.GetNamedItem("creator_id");
             return new Search.Comment.SearchResult(
                 int.Parse(elem.Attributes.GetNamedItem("id").Value),
@@ -101,7 +102,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Tag.SearchResult GetTagSearchResult(object json)
         {
-            var elem = (XmlNode)json;
+            XmlNode elem = (XmlNode)json;
             return new Search.Tag.SearchResult(
                 int.Parse(elem.Attributes.GetNamedItem("id").Value),
                 elem.Attributes.GetNamedItem("name").Value,
@@ -114,9 +115,9 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Autocomplete.SearchResult[] GetAutocompleteResultAsync(object json)
         {
-            var elem = (JArray)json;
-            var autoCompleteResults = new List<Search.Autocomplete.SearchResult>();
-            foreach (var item in elem.Children())
+            JArray elem = (JArray)json;
+            List<Search.Autocomplete.SearchResult> autoCompleteResults = new List<Search.Autocomplete.SearchResult>();
+            foreach (JToken item in elem.Children())
             {
                 string label = item["label"].Value<string>();
                 string name = item["value"].Value<string>();

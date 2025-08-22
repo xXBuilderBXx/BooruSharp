@@ -25,12 +25,13 @@ namespace BooruSharp.Others
         /// <summary>
         /// Initializes a new instance of the <see cref="Pixiv"/> class.
         /// </summary>
-        public Pixiv()
-            : base("app-api.pixiv.net", UrlFormat.None, BooruOptions.NoComment | BooruOptions.NoLastComments
-                  | BooruOptions.NoMultipleRandom | BooruOptions.NoPostByMD5 | BooruOptions.NoRelated | BooruOptions.NoTagByID
-                  | BooruOptions.NoWiki | BooruOptions.NoEmptyPostSearch)
+        public Pixiv(BooruOptions options = null)
+            : base("app-api.pixiv.net", UrlFormat.None, options)
         {
             AccessToken = null;
+            options.Flags |= BooruFlag.NoComment | BooruFlag.NoLastComments
+                  | BooruFlag.NoMultipleRandom | BooruFlag.NoPostByMD5 | BooruFlag.NoRelated | BooruFlag.NoTagByID
+                  | BooruFlag.NoWiki | BooruFlag.NoEmptyPostSearch;
         }
 
         /// <summary>
@@ -51,16 +52,16 @@ namespace BooruSharp.Others
             if (password == null)
                 throw new ArgumentNullException(nameof(password));
 
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://oauth.secure.pixiv.net/auth/token");
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "https://oauth.secure.pixiv.net/auth/token");
 
             string time = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+00:00");
             request.Headers.Add("X-Client-Time", time);
             AddUserAgentHeader(request);
 
-            using (var md5 = MD5.Create())
+            using (MD5 md5 = MD5.Create())
             {
-                var hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(time + _hashSecret));
-                var hashString = BitConverter.ToString(hashBytes).Replace("-", null).ToLowerInvariant();
+                byte[] hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(time + _hashSecret));
+                string hashString = BitConverter.ToString(hashBytes).Replace("-", null).ToLowerInvariant();
 
                 request.Headers.Add("X-Client-Hash", hashString);
             }
@@ -76,15 +77,15 @@ namespace BooruSharp.Others
                     { "password", password }
                 });
 
-            var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
             if (response.StatusCode == HttpStatusCode.BadRequest)
                 throw new AuthentificationInvalid();
 
             response.EnsureSuccessStatusCode();
 
-            var jsonToken = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
-            var responseToken = jsonToken["response"];
+            JToken jsonToken = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
+            JToken responseToken = jsonToken["response"];
 
             AccessToken = responseToken["access_token"].Value<string>();
             RefreshToken = responseToken["refresh_token"].Value<string>();
@@ -114,10 +115,10 @@ namespace BooruSharp.Others
         /// <exception cref="HttpRequestException"/>
         public async Task<byte[]> ImageToByteArrayAsync(SearchResult result)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, result.FileUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, result.FileUrl);
             request.Headers.Add("Referer", result.PostUrl.AbsoluteUri);
 
-            var response = await HttpClient.SendAsync(request);
+            HttpResponseMessage response = await HttpClient.SendAsync(request);
 
             response.EnsureSuccessStatusCode();
 
@@ -132,10 +133,10 @@ namespace BooruSharp.Others
         /// <exception cref="HttpRequestException"/>
         public async Task<byte[]> PreviewToByteArrayAsync(SearchResult result)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, result.PreviewUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, result.PreviewUrl);
             request.Headers.Add("Referer", result.PostUrl.AbsoluteUri);
 
-            var response = await HttpClient.SendAsync(request);
+            HttpResponseMessage response = await HttpClient.SendAsync(request);
 
             response.EnsureSuccessStatusCode();
 
@@ -157,7 +158,7 @@ namespace BooruSharp.Others
 
         private async Task UpdateTokenAsync()
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://oauth.secure.pixiv.net/auth/token");
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "https://oauth.secure.pixiv.net/auth/token");
             request.Content = new FormUrlEncodedContent(
                 new Dictionary<string, string>
                 {
@@ -169,15 +170,15 @@ namespace BooruSharp.Others
                 });
             AddUserAgentHeader(request);
 
-            var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
             if (response.StatusCode == HttpStatusCode.BadRequest)
                 throw new AuthentificationInvalid();
 
             response.EnsureSuccessStatusCode();
 
-            var jsonToken = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
-            var responseToken = jsonToken["response"];
+            JToken jsonToken = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
+            JToken responseToken = jsonToken["response"];
 
             AccessToken = responseToken["access_token"].Value<string>();
             _refreshTime = DateTime.Now.AddSeconds(responseToken["expires_in"].Value<int>());
@@ -199,7 +200,7 @@ namespace BooruSharp.Others
             if (AccessToken == null)
                 throw new AuthentificationRequired();
 
-            var request = new HttpRequestMessage(HttpMethod.Post, BaseUrl + "v2/illust/bookmark/add");
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, BaseUrl + "v2/illust/bookmark/add");
             AddAuthorizationHeader(request);
             request.Content = new FormUrlEncodedContent(
                 new Dictionary<string, string>
@@ -208,7 +209,7 @@ namespace BooruSharp.Others
                     { "restrict", "public" }
                 });
 
-            var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
                 throw new InvalidPostId();
@@ -229,7 +230,7 @@ namespace BooruSharp.Others
             if (AccessToken == null)
                 throw new AuthentificationRequired();
 
-            var request = new HttpRequestMessage(HttpMethod.Post, BaseUrl + "v1/illust/bookmark/delete");
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, BaseUrl + "v1/illust/bookmark/delete");
             AddAuthorizationHeader(request);
             request.Content = new FormUrlEncodedContent(
                 new Dictionary<string, string>
@@ -237,7 +238,7 @@ namespace BooruSharp.Others
                     { "illust_id", postId.ToString() }
                 });
 
-            var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
                 throw new InvalidPostId("There is no post with this ID in your bookmarks");
@@ -256,15 +257,15 @@ namespace BooruSharp.Others
             if (AccessToken == null)
                 throw new AuthentificationRequired();
 
-            var request = new HttpRequestMessage(HttpMethod.Get, BaseUrl +
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, BaseUrl +
                 "v1/user/bookmarks/illust?filter=for_ios&restrict=public&user_id=" + userId);
             AddAuthorizationHeader(request);
 
-            var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
             response.EnsureSuccessStatusCode();
 
-            var jsonToken = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
+            JToken jsonToken = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
             return ParseSearchResults((JArray)jsonToken["illusts"]);
         }
 
@@ -276,17 +277,17 @@ namespace BooruSharp.Others
 
             await CheckUpdateTokenAsync();
 
-            var request = new HttpRequestMessage(HttpMethod.Get, BaseUrl + "v1/illust/detail?illust_id=" + id);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, BaseUrl + "v1/illust/detail?illust_id=" + id);
             AddAuthorizationHeader(request);
 
-            var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
                 throw new InvalidTags();
 
             response.EnsureSuccessStatusCode();
 
-            var jsonToken = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
+            JToken jsonToken = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
             return ParseSearchResult(jsonToken["illust"]);
         }
 
@@ -301,20 +302,20 @@ namespace BooruSharp.Others
                 throw new InvalidTags();
 
             int id = Random.Next(1, max + 1);
-            var requestUrl = BaseUrl + "v1/search/illust?word=" + JoinTagsAndEscapeString(tagsArg) + "&offset=" + id;
+            string requestUrl = BaseUrl + "v1/search/illust?word=" + JoinTagsAndEscapeString(tagsArg) + "&offset=" + id;
 
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             AddAuthorizationHeader(request);
 
-            var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
                 throw new InvalidTags();
 
             response.EnsureSuccessStatusCode();
 
-            var jsonToken = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
-            var jsonArray = (JArray)jsonToken["illusts"];
+            JToken jsonToken = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
+            JArray jsonArray = (JArray)jsonToken["illusts"];
             return ParseSearchResult(jsonArray[0]);
         }
 
@@ -331,15 +332,15 @@ namespace BooruSharp.Others
 
             await CheckUpdateTokenAsync();
 
-            var requestUrl = "https://www.pixiv.net/ajax/search/artworks/" + JoinTagsAndEscapeString(tagsArg);
+            string requestUrl = "https://www.pixiv.net/ajax/search/artworks/" + JoinTagsAndEscapeString(tagsArg);
 
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 
-            var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
             response.EnsureSuccessStatusCode();
 
-            var jsonToken = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
+            JToken jsonToken = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
             return jsonToken["body"]["illustManga"]["total"].Value<int>();
         }
 
@@ -359,17 +360,17 @@ namespace BooruSharp.Others
 
             string requestUrl = BaseUrl + "v1/search/illust?word=" + JoinTagsAndEscapeString(tagsArg);
 
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             AddAuthorizationHeader(request);
 
-            var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
                 throw new InvalidTags();
 
             response.EnsureSuccessStatusCode();
 
-            var jsonToken = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
+            JToken jsonToken = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
             return ParseSearchResults((JArray)jsonToken["illusts"]);
         }
 
@@ -386,7 +387,7 @@ namespace BooruSharp.Others
 
         private SearchResult ParseSearchResult(JToken post)
         {
-            var tags = post["tags"].Select(x => x["name"].Value<string>()).ToList();
+            List<string> tags = post["tags"].Select(x => x["name"].Value<string>()).ToList();
 
             bool isNsfw = tags.Contains("R-18");
             if (isNsfw)
@@ -394,7 +395,7 @@ namespace BooruSharp.Others
                 tags.Remove("R-18");
             }
 
-            var originalImageUrlToken =
+            JToken originalImageUrlToken =
                  // If there's multiple image URLs, get the first one.
                  (post["meta_pages"]?.FirstOrDefault()?["image_urls"]?["original"])
                  // If there's only one original image URL, use that one.

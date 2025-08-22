@@ -9,8 +9,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Atfbooru"/> class.
         /// </summary>
-        public Atfbooru()
-            : base("booru.allthefallen.moe")
+        public Atfbooru(BooruOptions options = null)
+            : base("booru.allthefallen.moe", options)
         { }
 
         /// <inheritdoc/>

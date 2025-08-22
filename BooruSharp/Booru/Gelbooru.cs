@@ -9,8 +9,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Gelbooru"/> class.
         /// </summary>
-        public Gelbooru()
-            : base("gelbooru.com")
+        public Gelbooru(BooruOptions options = null)
+            : base("gelbooru.com", options)
         { }
 
         /// <inheritdoc/>

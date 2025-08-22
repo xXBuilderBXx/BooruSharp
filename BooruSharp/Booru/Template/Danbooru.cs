@@ -21,10 +21,12 @@ namespace BooruSharp.Booru.Template
         /// <param name="options">
         /// The options to use. Use <c>|</c> (bitwise OR) operator to combine multiple options.
         /// </param>
-        protected Danbooru(string domain, BooruOptions options = BooruOptions.None)
-            : base(domain, UrlFormat.Danbooru, options | BooruOptions.NoLastComments | BooruOptions.NoPostCount
-                  | BooruOptions.NoFavorite | BooruOptions.NoAutocomplete)
-        { }
+        protected Danbooru(string domain, BooruOptions options = null)
+            : base(domain, UrlFormat.Danbooru, options)
+        {
+            options.Flags |= BooruFlag.NoLastComments | BooruFlag.NoPostCount
+                  | BooruFlag.NoFavorite | BooruFlag.NoAutocomplete;
+        }
 
         /// <inheritdoc/>
         protected override void PreRequest(HttpRequestMessage message)
@@ -46,26 +48,26 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Post.SearchResult GetPostSearchResult(JToken elem)
         {
-            var url = elem["file_url"];
-            var previewUrl = elem["preview_file_url"];
-            var sampleUrl = elem["large_file_url"];
-            var id = elem["id"]?.Value<int>();
-            var md5 = elem["md5"];
+            JToken url = elem["file_url"];
+            JToken previewUrl = elem["preview_file_url"];
+            JToken sampleUrl = elem["large_file_url"];
+            int? id = elem["id"]?.Value<int>();
+            JToken md5 = elem["md5"];
 
-            var detailedtags = new List<Search.Tag.SearchResult>();
+            List<Search.Tag.SearchResult> detailedtags = new List<Search.Tag.SearchResult>();
             GetTags("tag_string_general", Search.Tag.TagType.Trivia);
             GetTags("tag_string_character", Search.Tag.TagType.Character);
             GetTags("tag_string_copyright", Search.Tag.TagType.Copyright);
             GetTags("tag_string_meta", Search.Tag.TagType.Metadata);
             GetTags("tag_string_artist", Search.Tag.TagType.Artist);
-            
+
             void GetTags(string objectName, Search.Tag.TagType tagType)
             {
-                var obj = elem[objectName];
-                if(obj == null)
+                JToken obj = elem[objectName];
+                if (obj == null)
                     return;
-                
-                foreach(var x in obj.Value<string>().Split())
+
+                foreach (string x in obj.Value<string>().Split())
                 {
                     detailedtags.Add(new Search.Tag.SearchResult(
                         -1,
@@ -74,7 +76,7 @@ namespace BooruSharp.Booru.Template
                         -1));
                 }
             }
-            
+
             return new Search.Post.SearchResult(
                     url != null ? new Uri(url.Value<string>()) : null,
                     previewUrl != null ? new Uri(previewUrl.Value<string>()) : null,
@@ -108,7 +110,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Comment.SearchResult GetCommentSearchResult(object json)
         {
-            var elem = (JObject)json;
+            JObject elem = (JObject)json;
             return new Search.Comment.SearchResult(
                 elem["id"].Value<int>(),
                 elem["post_id"].Value<int>(),
@@ -121,7 +123,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Wiki.SearchResult GetWikiSearchResult(object json)
         {
-            var elem = (JObject)json;
+            JObject elem = (JObject)json;
             return new Search.Wiki.SearchResult(
                 elem["id"].Value<int>(),
                 elem["title"].Value<string>(),
@@ -133,7 +135,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Tag.SearchResult GetTagSearchResult(object json)
         {
-            var elem = (JObject)json;
+            JObject elem = (JObject)json;
             return new Search.Tag.SearchResult(
                 elem["id"].Value<int>(),
                 elem["name"].Value<string>(),
@@ -144,7 +146,7 @@ namespace BooruSharp.Booru.Template
 
         private protected override Search.Related.SearchResult GetRelatedSearchResult(object json)
         {
-            var elem = (JArray)json;
+            JArray elem = (JArray)json;
             return new Search.Related.SearchResult(
                 elem[0].Value<string>(),
                 elem[1].Value<int>()

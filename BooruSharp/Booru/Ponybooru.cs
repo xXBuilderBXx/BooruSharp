@@ -14,7 +14,7 @@ namespace BooruSharp.Booru
         /// <summary>
         /// Initializes a new instance of the <see cref="Ponybooru"/> class.
         /// </summary>
-        public Ponybooru() : base("ponybooru.org")
+        public Ponybooru(BooruOptions options = null) : base("ponybooru.org", options)
         { }
 
         /// <inheritdoc/>
@@ -25,8 +25,8 @@ namespace BooruSharp.Booru
 
         protected override void PreRequest(HttpRequestMessage message)
         {
-            var uriBuilder = new UriBuilder(message.RequestUri.AbsoluteUri);
-            var query = HttpUtility.ParseQueryString(uriBuilder.Query);
+            UriBuilder uriBuilder = new UriBuilder(message.RequestUri.AbsoluteUri);
+            System.Collections.Specialized.NameValueCollection query = HttpUtility.ParseQueryString(uriBuilder.Query);
             if (Auth != null)
             {
                 query["key"] = Auth.PasswordHash;

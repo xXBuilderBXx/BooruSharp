@@ -11,7 +11,7 @@ namespace BooruSharp.Booru
         /// <summary>
         /// Initializes a new instance of the <see cref="Twibooru"/> class.
         /// </summary>
-        public Twibooru() : base("twibooru.org")
+        public Twibooru(BooruOptions options = null) : base("twibooru.org", options)
         { }
 
         /// <inheritdoc/>

@@ -9,8 +9,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Konachan"/> class.
         /// </summary>
-        public Konachan()
-            : base("konachan.com")
+        public Konachan(BooruOptions options = null)
+            : base("konachan.com", options)
         { }
 
         /// <inheritdoc/>
