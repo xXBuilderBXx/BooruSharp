@@ -36,6 +36,7 @@ internal static class Boorus
         {
             Proxy = new WebProxy(Environment.GetEnvironmentVariable("proxy_ip"), int.Parse(Environment.GetEnvironmentVariable("proxy_port")))
         });
+        booru.HttpClient.DefaultRequestHeaders.Add("User-Agent", ABooru._userAgentHeaderValue);
         if (booru is Pixiv pixiv)
         {
             string refresh = Environment.GetEnvironmentVariable("PIXIV_REFRESH_TOKEN");
@@ -53,6 +54,10 @@ internal static class Boorus
             else if (booru is Gelbooru)
             {
                 booru.Options.Auth = new BooruAuth(Environment.GetEnvironmentVariable("gel_user"), Environment.GetEnvironmentVariable("gel_key"));
+            }
+            else if (booru is Rule34)
+            {
+                booru.Options.Auth = new BooruAuth(Environment.GetEnvironmentVariable("r34_user"), Environment.GetEnvironmentVariable("r34_key"));
             }
         }
 

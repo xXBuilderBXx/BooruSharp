@@ -277,6 +277,8 @@ namespace BooruSharp.Booru
             PreRequest(message);
             if (!string.IsNullOrEmpty(Options.Cookie))
                 message.Headers.Add("Cookie", Options.Cookie);
+
+
             HttpResponseMessage msg = await HttpClient.SendAsync(message);
 
             if (msg.StatusCode == HttpStatusCode.Forbidden)
@@ -400,7 +402,7 @@ namespace BooruSharp.Booru
         // All options are stored in a bit field and can be retrieved using related methods/properties.
         public readonly BooruOptions Options;
         private readonly UrlFormat _format; // URL format
-        private const string _userAgentHeaderValue = "Mozilla/5.0 BooruSharp";
+        internal const string _userAgentHeaderValue = "Mozilla/6.0 BooruSharp";
         private protected readonly DateTime _unixTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public static HttpClient CreateHttpClient(BooruOptions options)
