@@ -278,7 +278,6 @@ namespace BooruSharp.Booru
             if (!string.IsNullOrEmpty(Options.Cookie))
                 message.Headers.Add("Cookie", Options.Cookie);
 
-
             HttpResponseMessage msg = await HttpClient.SendAsync(message);
 
             if (msg.StatusCode == HttpStatusCode.Forbidden)
