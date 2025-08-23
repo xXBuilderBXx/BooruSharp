@@ -13,7 +13,7 @@ namespace BooruSharp.Booru
         /// </summary>
         public BooruAuth Auth { set; get; }
         public string Cookie { get; set; }
-        public BooruFlag Flags { get; internal set; }
+        public BooruFlag Flags { get; set; }
         public IWebProxy Proxy { get; set; }
     }
     /// <summary>
